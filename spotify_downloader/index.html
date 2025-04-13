@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Playlist Downloader</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spotify-web-api-js/1.5.2/spotify-web-api.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary: #1DB954;
+            --dark: #191414;
+            --light: #FFFFFF;
+            --gray: #333333;
+            --light-gray: #EFEFEF;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1rem;
+            color: var(--light-gray);
+        }
+        
+        .card {
+            background-color: var(--gray);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: none;
+            background-color: var(--light);
+            color: var(--dark);
+            font-size: 1rem;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover {
+            background-color: #1ed760;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .spotify-login-btn {
+            background-color: var(--primary);
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary);
+            transition: width 0.3s;
+        }
+        
+        .playlist-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .playlist-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 5px;
+            margin-right: 20px;
+            object-fit: cover;
+        }
+        
+        .playlist-details h3 {
+            margin-bottom: 5px;
+        }
+        
+        .track-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+        
+        .track-item {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .track-number {
+            margin-right: 10px;
+            font-weight: bold;
+            min-width: 25px;
+        }
+        
+        .track-title {
+            flex-grow: 1;
+        }
+        
+        .track-status {
+            margin-left: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: var(--light-gray);
+        }
+        
+        .disclaimer {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .playlist-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .playlist-image {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Spotify Playlist Downloader</div>
+            <div class="tagline">Download your favorite Spotify playlists for offline listening</div>
+        </header>
+        
+        <div class="card" id="auth-card">
+            <h2>Step 1: Connect with Spotify</h2>
+            <p>To access your playlists, you'll need to authorize this app with your Spotify account.</p>
+            <p>This is a client-side only application - your data never leaves your browser.</p>
+            <button id="spotify-login" class="spotify-login-btn">
+                Connect with Spotify
+            </button>
+            <div class="disclaimer">
+                <strong>Note:</strong> This app requires Spotify authentication to access playlist data.
+                We don't store any of your information or access your account beyond retrieving
+                playlist details that you explicitly request.
+            </div>
+        </div>
+        
+        <div class="card hidden" id="input-card">
+            <h2>Step 2: Enter Playlist URL</h2>
+            <div class="input-group">
+                <label for="playlist-url">Enter Spotify Playlist URL or ID:</label>
+                <input type="text" id="playlist-url" placeholder="https://open.spotify.com/playlist/..." />
+            </div>
+            <button id="fetch-playlist">Get Playlist</button>
+        </div>
+        
+        <div class="card hidden" id="playlist-card">
+            <h2>Step 3: Download Tracks</h2>
+            <div id="playlist-info" class="playlist-info">
+                <!-- Playlist info will be populated here -->
+            </div>
+            
+            <div class="track-list" id="track-list">
+                <!-- Track list will be populated here -->
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div id="download-status" class="status"></div>
+            
+            <button id="download-all" disabled>Download All Tracks</button>
+            <button id="back-btn">Back to Search</button>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 Spotify Playlist Downloader</p>
+            <p class="disclaimer">
+                This tool is designed for personal use only. Please respect copyright laws and 
+                artists' rights by only downloading content you have the right to access.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Spotify API configuration
+        const clientId = ''; // You need to enter your own Spotify API client ID
+        const redirectUri = window.location.origin + window.location.pathname;
+        const scope = 'playlist-read-private playlist-read-collaborative';
+        
+        // Initialize Spotify Web API
+        const spotifyApi = new Spotify.SpotifyWebApi();
+        
+        // Elements
+        const spotifyLoginBtn = document.getElementById('spotify-login');
+        const authCard = document.getElementById('auth-card');
+        const inputCard = document.getElementById('input-card');
+        const playlistCard = document.getElementById('playlist-card');
+        const playlistUrlInput = document.getElementById('playlist-url');
+        const fetchPlaylistBtn = document.getElementById('fetch-playlist');
+        const playlistInfoDiv = document.getElementById('playlist-info');
+        const trackListDiv = document.getElementById('track-list');
+        const progressBar = document.getElementById('progress-bar');
+        const downloadStatusDiv = document.getElementById('download-status');
+        const downloadAllBtn = document.getElementById('download-all');
+        const backBtn = document.getElementById('back-btn');
+        
+        // Track the current playlist and tracks
+        let currentPlaylist = null;
+        let currentTracks = [];
+        
+        // Handle Spotify authentication
+        function handleAuth() {
+            const hashParams = getHashParams();
+            
+            if (hashParams.access_token) {
+                // We have an access token, hide auth card and show input card
+                spotifyApi.setAccessToken(hashParams.access_token);
+                authCard.classList.add('hidden');
+                inputCard.classList.remove('hidden');
+                
+                // Clear the hash to avoid issues with refreshing
+                window.history.replaceState(null, null, ' ');
+                
+                // Check if the token is valid
+                spotifyApi.getMe()
+                    .then(response => {
+                        console.log('User authenticated:', response);
+                    })
+                    .catch(error => {
+                        console.error('Authentication error:', error);
+                        authCard.classList.remove('hidden');
+                        inputCard.classList.add('hidden');
+                        alert('Authentication failed. Please try again.');
+                    });
+            } else {
+                // No access token, show auth card
+                authCard.classList.remove('hidden');
+                inputCard.classList.add('hidden');
+            }
+        }
+        
+        // Parse hash parameters from URL
+        function getHashParams() {
+            const hashParams = {};
+            const hash = window.location.hash.substring(1);
+            const params = hash.split('&');
+            
+            for (let i = 0; i < params.length; i++) {
+                const pair = params[i].split('=');
+                hashParams[pair[0]] = decodeURIComponent(pair[1]);
+            }
+            
+            return hashParams;
+        }
+        
+        // Extract playlist ID from URL
+        function extractPlaylistId(url) {
+            if (!url) return null;
+            
+            // Handle direct Spotify URLs
+            if (url.includes('spotify.com/playlist/')) {
+                const matches = url.match(/spotify\.com\/playlist\/([a-zA-Z0-9]+)/);
+                return matches ? matches[1] : null;
+            }
+            
+            // Handle direct IDs
+            if (/^[a-zA-Z0-9]{22}$/.test(url.trim())) {
+                return url.trim();
+            }
+            
+            return null;
+        }
+        
+        // Fetch playlist details
+        async function fetchPlaylist(playlistId) {
+            try {
+                const response = await spotifyApi.getPlaylist(playlistId);
+                currentPlaylist = response;
+                
+                // Display playlist info
+                displayPlaylistInfo(response);
+                
+                // Fetch tracks
+                await fetchPlaylistTracks(playlistId);
+                
+                // Show playlist card
+                inputCard.classList.add('hidden');
+                playlistCard.classList.remove('hidden');
+                
+                // Enable download button
+                downloadAllBtn.disabled = false;
+                
+                return response;
+            } catch (error) {
+                console.error('Error fetching playlist:', error);
+                alert('Error fetching playlist. Please check the URL and try again.');
+                return null;
+            }
+        }
+        
+        // Fetch all tracks from a playlist
+        async function fetchPlaylistTracks(playlistId) {
+            try {
+                let tracks = [];
+                let offset = 0;
+                const limit = 100; // Spotify API limit
+                let hasMore = true;
+                
+                while (hasMore) {
+                    const response = await spotifyApi.getPlaylistTracks(playlistId, {
+                        limit: limit,
+                        offset: offset
+                    });
+                    
+                    const trackItems = response.items.map(item => {
+                        if (!item.track) return null;
+                        
+                        return {
+                            id: item.track.id,
+                            name: item.track.name,
+                            artist: item.track.artists.map(artist => artist.name).join(', '),
+                            album: item.track.album.name,
+                            duration: item.track.duration_ms,
+                            query: `${item.track.name} ${item.track.artists[0].name} audio`
+                        };
+                    }).filter(track => track !== null);
+                    
+                    tracks = tracks.concat(trackItems);
+                    
+                    if (response.next) {
+                        offset += limit;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+                
+                currentTracks = tracks;
+                displayTrackList(tracks);
+                
+                return tracks;
+            } catch (error) {
+                console.error('Error fetching tracks:', error);
+                alert('Error fetching tracks. Please try again.');
+                return [];
+            }
+        }
+        
+        // Display playlist information
+        function displayPlaylistInfo(playlist) {
+            playlistInfoDiv.innerHTML = `
+                <img src="${playlist.images[0]?.url || '/api/placeholder/100/100'}" alt="${playlist.name}" class="playlist-image">
+                <div class="playlist-details">
+                    <h3>${playlist.name}</h3>
+                    <p>By ${playlist.owner.display_name}</p>
+                    <p>${playlist.tracks.total} tracks</p>
+                </div>
+            `;
+        }
+        
+        // Display track list
+        function displayTrackList(tracks) {
+            trackListDiv.innerHTML = '';
+            
+            tracks.forEach((track, index) => {
+                const trackItem = document.createElement('div');
+                trackItem.className = 'track-item';
+                trackItem.id = `track-${index}`;
+                trackItem.innerHTML = `
+                    <div class="track-number">${index + 1}</div>
+                    <div class="track-title">
+                        <strong>${track.name}</strong><br>
+                        <small>${track.artist}</small>
+                    </div>
+                    <div class="track-status" id="track-status-${index}"></div>
+                `;
+                
+                trackListDiv.appendChild(trackItem);
+            });
+        }
+        
+        // Mock function to simulate downloading tracks
+        // In a real implementation, this would use a service like youtube-dl or similar
+        async function downloadTracks() {
+            if (currentTracks.length === 0) {
+                alert('No tracks to download');
+                return;
+            }
+            
+            downloadAllBtn.disabled = true;
+            
+            // Create a ZIP file to store all tracks
+            const zip = new JSZip();
+            const totalTracks = currentTracks.length;
+            let completedTracks = 0;
+            
+            downloadStatusDiv.textContent = `Preparing to download ${totalTracks} tracks...`;
+            
+            // In a real application, you would implement a service to convert Spotify tracks to MP3s
+            // For demonstration purposes, we're creating dummy MP3 files
+            for (let i = 0; i < currentTracks.length; i++) {
+                const track = currentTracks[i];
+                const trackStatusElement = document.getElementById(`track-status-${i}`);
+                const trackItem = document.getElementById(`track-${i}`);
+                
+                trackStatusElement.textContent = 'Processing...';
+                trackItem.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                
+                // Simulate processing delay
+                await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+                
+                // In a real app, you would:
+                // 1. Search for the track on YouTube or another source
+                // 2. Download the audio
+                // 3. Convert it to MP3
+                // 4. Add ID3 tags
+                
+                // For demonstration, add a placeholder text file
+                const fileName = `${track.artist} - ${track.name}.txt`;
+                zip.file(fileName, `This would be the MP3 file for "${track.name}" by ${track.artist}`);
+                
+                completedTracks++;
+                trackStatusElement.textContent = 'Done';
+                trackItem.style.backgroundColor = 'rgba(29, 185, 84, 0.2)';
+                
+                // Update progress
+                const progress = (completedTracks / totalTracks) * 100;
+                progressBar.style.width = `${progress}%`;
+                downloadStatusDiv.textContent = `Downloaded ${completedTracks} of ${totalTracks} tracks`;
+            }
+            
+            // Generate the ZIP file
+            downloadStatusDiv.textContent = 'Generating ZIP file...';
+            const content = await zip.generateAsync({ type: 'blob' });
+            
+            // Trigger download
+            const playlistName = currentPlaylist.name.replace(/[^\w\s]/gi, '');
+            saveAs(content, `${playlistName} - Spotify Playlist.zip`);
+            
+            downloadStatusDiv.textContent = 'Download complete!';
+            downloadAllBtn.disabled = false;
+        }
+        
+        // Event listeners
+        spotifyLoginBtn.addEventListener('click', () => {
+            // Redirect to Spotify authorization page
+            const authUrl = 'https://accounts.spotify.com/authorize' +
+                '?response_type=token' +
+                '&client_id=' + encodeURIComponent(clientId) +
+                '&scope=' + encodeURIComponent(scope) +
+                '&redirect_uri=' + encodeURIComponent(redirectUri);
+            
+            window.location = authUrl;
+        });
+        
+        fetchPlaylistBtn.addEventListener('click', () => {
+            const playlistUrl = playlistUrlInput.value;
+            const playlistId = extractPlaylistId(playlistUrl);
+            
+            if (playlistId) {
+                fetchPlaylist(playlistId);
+            } else {
+                alert('Invalid playlist URL or ID. Please check and try again.');
+            }
+        });
+        
+        downloadAllBtn.addEventListener('click', downloadTracks);
+        
+        backBtn.addEventListener('click', () => {
+            playlistCard.classList.add('hidden');
+            inputCard.classList.remove('hidden');
+            currentPlaylist = null;
+            currentTracks = [];
+            playlistInfoDiv.innerHTML = '';
+            trackListDiv.innerHTML = '';
+            progressBar.style.width = '0%';
+            downloadStatusDiv.textContent = '';
+        });
+        
+        // Initialize
+        handleAuth();
+    </script>
+</body>
+</html>
