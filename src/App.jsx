@@ -4,7 +4,7 @@ import InputCard from './components/InputCard';
 import PlaylistCard from './components/PlaylistCard';
 import Footer from './components/Footer';
 import { initSpotifyApi, authenticateSpotify, fetchPlaylist, fetchPlaylistTracks } from './services/spotifyService';
-import './styles/AuthCard&App.css';
+
 
 function App() {
   const [accessToken, setAccessToken] = useState(null);

@@ -1,6 +1,6 @@
-import Spotify from 'spotify-web-api-js';
+import SpotifyWebApi from 'spotify-web-api-js';
 
-const spotifyApi = new Spotify.SpotifyWebApi();
+const spotifyApi = new SpotifyWebApi();
 const CLIENT_ID = '342988cefabe4cc38bfd832875278b34'; // Replace with your Spotify Client ID
 const REDIRECT_URI = window.location.origin;
 const SCOPE = 'playlist-read-private playlist-read-collaborative';
