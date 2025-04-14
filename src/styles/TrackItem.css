@@ -91,19 +91,4 @@
   }
   
   /* src/styles/Footer.css */
-  .footer {
-    margin-top: 40px;
-    text-align: center;
-    padding: 20px 0;
-  }
   
-  .footer p {
-    color: var(--light-gray);
-    font-size: 0.9rem;
-  }
-  
-  .footer .disclaimer {
-    margin-top: 15px;
-    font-size: 0.8rem;
-    line-height: 1.5;
-  }

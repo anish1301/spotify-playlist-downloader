@@ -1,0 +1,19 @@
+/* src/styles/App.css */
+
+
+/* src/styles/AuthCard.css */
+.auth-card {
+  text-align: center;
+}
+
+.spotify-login-btn {
+  background-color: var(--primary);
+  width: 100%;
+  margin: 15px 0;
+  padding: 12px;
+  font-size: 1.1rem;
+}
+
+.spotify-login-btn:hover {
+  background-color: #1ed760;
+}

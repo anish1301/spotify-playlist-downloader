@@ -1,0 +1,14 @@
+/* src/styles/InputCard.css */
+.input-card form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-card .input-group {
+    margin-bottom: 20px;
+  }
+  
+  .input-card button {
+    align-self: flex-start;
+  }
+  
