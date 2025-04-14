@@ -8,7 +8,7 @@ function TrackItem({ track, index, status, onDownload }) {
     const seconds = ((ms % 60000) / 1000).toFixed(0);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-  
+  console.log('Rendering TrackItem', track, status);
   // Get status label and class
   const getStatusInfo = () => {
     switch (status) {

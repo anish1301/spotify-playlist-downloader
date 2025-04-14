@@ -9,6 +9,7 @@ function InputCard({ onSubmit, loading, error }) {
     onSubmit(playlistUrl);
   };
   
+  console.log('Rendering InputCard');
   return (
     <div className="card input-card">
       <h2>Step 2: Enter Playlist URL</h2>
