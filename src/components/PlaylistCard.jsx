@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import TrackItem from './TrackItem';
 import { searchYouTube, getY2MateDownloadUrl } from '../services/youtubeService';
-import '../styles/PlaylistCard.css';
+import '../styles/Playlist.css';
 
 function PlaylistCard({ playlist, tracks, onBack }) {
   const [downloading, setDownloading] = useState(false);
