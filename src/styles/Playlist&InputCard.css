@@ -1,0 +1,104 @@
+/* src/styles/InputCard.css */
+.input-card form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-card .input-group {
+    margin-bottom: 20px;
+  }
+  
+  .input-card button {
+    align-self: flex-start;
+  }
+  
+  /* src/styles/PlaylistCard.css */
+  .playlist-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .playlist-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 5px;
+    margin-right: 20px;
+    object-fit: cover;
+  }
+  
+  .playlist-details h3 {
+    margin-bottom: 5px;
+    font-size: 1.5rem;
+  }
+  
+  .playlist-details p {
+    color: var(--light-gray);
+    margin-bottom: 5px;
+  }
+  
+  .track-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 5px;
+  }
+  
+  .download-progress {
+    margin: 20px 0;
+  }
+  
+  .progress-container {
+    width: 100%;
+    height: 20px;
+    background-color: var(--light-gray);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: var(--primary);
+    transition: width 0.3s;
+  }
+  
+  .playlist-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .download-all-btn {
+    background-color: var(--primary);
+  }
+  
+  .back-btn {
+    background-color: transparent;
+    border: 1px solid var(--light-gray);
+  }
+  
+  .download-notice {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(255, 193, 7, 0.2);
+    border-radius: 5px;
+    color: var(--warning);
+  }
+  
+  @media (max-width: 600px) {
+    .playlist-info {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .playlist-image {
+      margin-right: 0;
+      margin-bottom: 15px;
+    }
+    
+    .playlist-actions {
+      flex-direction: column;
+    }
+  }
