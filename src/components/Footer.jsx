@@ -3,6 +3,7 @@ import React from 'react';
 import '../styles/Footer.css';
 
 function Footer() {
+  console.log('Rendering Footer');
   return (
     <footer className="footer">
       <p>&copy; {new Date().getFullYear()} Spotify Playlist Downloader</p>

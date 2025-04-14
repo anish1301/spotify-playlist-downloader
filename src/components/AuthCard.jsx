@@ -3,6 +3,7 @@ import React from 'react';
 import '../styles/AuthCard.css';
 
 function AuthCard({ onLogin }) {
+  console.log('Rendering AuthCard');
   return (
     <div className="card auth-card">
       <h2>Step 1: Connect with Spotify</h2>

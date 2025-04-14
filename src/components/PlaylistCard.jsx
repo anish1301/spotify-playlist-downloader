@@ -18,6 +18,7 @@ function PlaylistCard({ playlist, tracks, onBack }) {
     }));
   };
 
+  console.log('Rendering PlaylistCard');
   // Download a single track
   const downloadTrack = async (track) => {
     try {
