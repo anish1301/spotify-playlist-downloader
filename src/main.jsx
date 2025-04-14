@@ -7,10 +7,10 @@ import './styles/AuthCard.css'
 import './styles/Playlist.css'
 import './styles/TrackItem.css'
 import './styles/Footer.css'
+import Footer from './components/Footer.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  
-    <App />
-    
-  
+    <React.StrictMode>
+        <App/>
+    </React.StrictMode>
 )
