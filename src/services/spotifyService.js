@@ -1,11 +1,11 @@
+// spotifyService.js
 import SpotifyWebApi from 'spotify-web-api-js';
 
 const spotifyApi = new SpotifyWebApi();
 // Use environment variables in production
 const CLIENT_ID = '342988cefabe4cc38bfd832875278b34'; // Replace with your Spotify Client ID
-const REDIRECT_URI = window.location.origin;
+const REDIRECT_URI = 'http://localhost:5173/'; // Updated to root path for proper routing
 const SCOPE = 'playlist-read-private playlist-read-collaborative';
-
 
 export const initSpotifyApi = (token) => {
   spotifyApi.setAccessToken(token);
