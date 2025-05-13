@@ -1,172 +1,151 @@
-import React, { useState, useEffect } from 'react';
+// src/App.jsx
+import SpotifyWebApi from 'spotify-web-api-js';
+import { useState, useEffect } from 'react';
+import { getHashParams } from './utils/helpers';
+import { getUser, initializeSpotifyApi } from './services/spotifyService'; // Added initializeSpotifyApi
 import AuthCard from './components/AuthCard';
 import InputCard from './components/InputCard';
 import PlaylistCard from './components/PlaylistCard';
 import Footer from './components/Footer';
-import { initSpotifyApi, authenticateSpotify, fetchPlaylist, fetchPlaylistTracks } from './services/spotifyService';
+import './styles/App.css';
+
 
 function App() {
-  const [accessToken, setAccessToken] = useState(() => {
-    // Check if token exists in localStorage first
-    return localStorage.getItem('spotify_access_token') || null;
-  });
-  const [playlist, setPlaylist] = useState(null);
-  const [tracks, setTracks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [playlist, setPlaylist] = useState(null);
 
+  // Check for token on page load
   useEffect(() => {
-    // Check if we have a token in the URL hash
-    const hash = window.location.hash;
-    if (hash) {
+    const initAuth = async () => {
       try {
-        const hashParams = new URLSearchParams(hash.substring(1));
-        const token = hashParams.get('access_token');
-        
-        if (token) {
-          // Save token to localStorage
-          localStorage.setItem('spotify_access_token', token);
-          setAccessToken(token);
-          initSpotifyApi(token);
-          
-          // Clear the hash from URL
-          window.history.replaceState(null, null, ' ');
+        const params = getHashParams();
+        if (params.access_token) {
+          await initializeSpotifyApi(params.access_token);
+          setToken(params.access_token);
+          localStorage.setItem('spotify_token', params.access_token);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+          const storedToken = localStorage.getItem('spotify_token');
+          if (storedToken) {
+            try {
+              await initializeSpotifyApi(storedToken);
+              setToken(storedToken);
+            } catch (error) {
+              localStorage.removeItem('spotify_token');
+              setToken(null);
+              throw new Error('Stored token is invalid');
+            }
+          }
         }
-      } catch (err) {
-        console.error('Error parsing hash params:', err);
-        setError('Authentication failed. Please try again.');
+      } catch (error) {
+        console.error('Auth error:', error);
+        localStorage.removeItem('spotify_token');
+        setToken(null);
+        setError(error.message || 'Failed to initialize Spotify API');
       }
-    }
-    
-    // Initialize API if we already have a token
-    if (accessToken) {
-      initSpotifyApi(accessToken);
-    }
-    
-    setAuthLoading(false);
+    };
+  
+    initAuth();
   }, []);
 
-  // Effect to handle token expiration or removal
+  // Fetch user profile when token is available
   useEffect(() => {
-    if (!accessToken) {
-      localStorage.removeItem('spotify_access_token');
+    if (token) {
+      fetchUserProfile();
     }
-  }, [accessToken]);
+  }, [token]);
 
-  const handleLogin = () => {
-    setAuthLoading(true);
-    authenticateSpotify();
-  };
-
-  const handleSubmit = async (playlistUrl) => {
-    if (!playlistUrl || !playlistUrl.trim()) {
-      setError('Please enter a playlist URL');
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-    
+  // Fetch user profile from Spotify
+  const fetchUserProfile = async () => {
     try {
-      // Extract playlist ID from URL - support multiple URL formats
-      let playlistId;
-      
-      if (playlistUrl.includes('playlist/')) {
-        playlistId = playlistUrl.split('playlist/')[1]?.split(/[/?#]/)[0];
-      } else if (playlistUrl.includes('open.spotify.com')) {
-        const urlObj = new URL(playlistUrl);
-        const pathParts = urlObj.pathname.split('/');
-        const playlistIndex = pathParts.indexOf('playlist');
-        if (playlistIndex !== -1 && playlistIndex < pathParts.length - 1) {
-          playlistId = pathParts[playlistIndex + 1];
-        }
+      const userData = await getUser(token);
+      setUser(userData);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      // If token is invalid, clear it
+      if (error.status === 401) {
+        localStorage.removeItem('spotify_token');
+        setToken(null);
       }
-      
-      if (!playlistId) {
-        throw new Error('Invalid playlist URL. Please check the URL and try again.');
-      }
-
-      const playlistData = await fetchPlaylist(playlistId);
-      setPlaylist(playlistData);
-
-      const tracksData = await fetchPlaylistTracks(playlistId);
-      setTracks(tracksData);
-    } catch (err) {
-      console.error('Error fetching playlist:', err);
-      setError(err.message || 'Failed to load playlist. Please try again.');
-      setPlaylist(null);
-      setTracks([]);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleBack = () => {
-    setPlaylist(null);
-    setTracks([]);
+  // Handle errors
+  const handleError = (message) => {
+    setError(message);
+    setIsLoading(false);
+    
+    // Clear error after 5 seconds
+    setTimeout(() => {
+      setError(null);
+    }, 5000);
+  };
+
+  // Handle successful playlist fetch
+  const handlePlaylistSuccess = (data) => {
+    setPlaylist(data);
+    setIsLoading(false);
     setError(null);
   };
 
+  // Go back to input screen
+  const handleBackToInput = () => {
+    setPlaylist(null);
+  };
+
+  // Handle logout
   const handleLogout = () => {
-    setAccessToken(null);
+    localStorage.removeItem('spotify_token');
+    setToken(null);
+    setUser(null);
     setPlaylist(null);
-    setTracks([]);
-    setError(null);
-    localStorage.removeItem('spotify_access_token');
   };
-
-  if (authLoading) {
-    return (
-      <div className="app-container">
-        <header className="app-header">
-          <div className="logo">Spotify Playlist Downloader</div>
-        </header>
-        <main className="app-main">
-          <div className="loading-spinner">Loading authentication...</div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <div className="logo">Spotify Playlist Downloader</div>
-        <div className="tagline">Download your favorite tracks for offline listening</div>
-        {accessToken && (
-          <button 
-            className="logout-button" 
-            onClick={handleLogout}
-            aria-label="Logout from Spotify"
-          >
-            Logout
-          </button>
+    <div className="app">
+      <header className="header">
+        <div className="logo">
+          <img src="/logo192.png" alt="Spotify Playlist Downloader" />
+          <h1>Spotify Playlist Downloader</h1>
+        </div>
+        
+        {user && (
+          <div className="user-info">
+            <span>Hello, {user.display_name}</span>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         )}
       </header>
-
-      <main className="app-main">
-        {!accessToken && <AuthCard onLogin={handleLogin} />}
-        
-        {accessToken && !playlist && (
-          <InputCard
-            onSubmit={handleSubmit}
-            loading={loading}
-            error={error}
-          />
+      
+      <main className="main-content">
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
         )}
         
-        {accessToken && playlist && (
-          <PlaylistCard
-            playlist={playlist}
-            tracks={tracks}
-            onBack={handleBack}
-            error={error}
+        {!token ? (
+          <AuthCard />
+        ) : playlist ? (
+          <PlaylistCard 
+            playlist={playlist} 
+            onBack={handleBackToInput} 
+          />
+        ) : (
+          <InputCard 
+            onSuccess={handlePlaylistSuccess}
+            onError={handleError}
+            isLoading={isLoading}
+            setLoading={setIsLoading}
           />
         )}
       </main>
-
+      
       <Footer />
     </div>
   );

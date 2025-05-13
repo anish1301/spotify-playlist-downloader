@@ -1,14 +1,110 @@
 /* src/styles/InputCard.css */
+.input-card {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.input-card h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.instruction {
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
 .input-card form {
-    display: flex;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.input-card input {
+  flex: 1;
+}
+
+.input-card button {
+  background-color: var(--primary-color);
+  color: white;
+  min-width: 100px;
+}
+
+.input-card button:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+}
+
+.input-card button.loading {
+  position: relative;
+}
+
+.input-card button.loading:after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border: 3px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.examples {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.examples p {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.examples ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.examples li {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  word-break: break-all;
+}
+
+@media (max-width: 768px) {
+  .input-card {
+    padding: 1.5rem;
+  }
+  
+  .input-card form {
     flex-direction: column;
   }
   
-  .input-card .input-group {
-    margin-bottom: 20px;
-  }
-  
   .input-card button {
-    align-self: flex-start;
+    width: 100%;
   }
-  
+}

@@ -1,94 +1,211 @@
 /* src/styles/TrackItem.css */
 .track-item {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    border-radius: 5px;
-    margin-bottom: 8px;
-    background-color: rgba(255, 255, 255, 0.1);
-    transition: background-color 0.3s;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.03);
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.track-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.track-item.selected {
+  background-color: rgba(29, 185, 84, 0.1);
+}
+
+.track-main {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  cursor: pointer;
+}
+
+.track-select {
+  margin-right: 0.75rem;
+}
+
+.track-select input {
+  cursor: pointer;
+  width: auto;
+}
+
+.track-image {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  margin-right: 1rem;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.track-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background-color: #3E3E3E;
+}
+
+.track-info {
+  flex: 1;
+  min-width: 0;
+  margin-right: 1rem;
+}
+
+.track-title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-artist {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-album {
+  width: 25%;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 1rem;
+}
+
+.track-duration {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-right: 1rem;
+  white-space: nowrap;
+}
+
+.track-actions {
+  min-width: 70px;
+}
+
+.find-button {
+  background-color: #3E3E3E;
+  color: var(--text-color);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+}
+
+.find-button:hover:not(:disabled) {
+  background-color: #4E4E4E;
+}
+
+.find-button.searching {
+  position: relative;
+  color: transparent;
+}
+
+.find-button.searching:after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: var(--text-color);
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+.find-button.found {
+  background-color: rgba(29, 185, 84, 0.2);
+}
+
+.track-youtube {
+  padding: 0.75rem;
+  padding-top: 0;
+  padding-left: 3.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.youtube-info {
+  margin-bottom: 0.75rem;
+}
+
+.youtube-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.youtube-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.youtube-link, .download-link {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.youtube-link {
+  background-color: #FF0000;
+  color: white;
+  text-decoration: none;
+}
+
+.download-link {
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+}
+
+.youtube-link:hover, .download-link:hover {
+  opacity: 0.9;
+  text-decoration: none;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
   }
-  
-  .track-item:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+  to {
+    transform: rotate(1turn);
   }
-  
-  .track-number {
-    margin-right: 15px;
-    font-weight: bold;
-    min-width: 25px;
-    text-align: center;
-  }
-  
-  .track-title {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .track-artist {
-    font-size: 0.85rem;
-    color: var(--light-gray);
+}
+
+@media (max-width: 768px) {
+  .track-album {
+    display: none;
   }
   
   .track-duration {
-    margin: 0 15px;
-    color: var(--light-gray);
-    font-size: 0.9rem;
+    display: none;
   }
   
-  .track-status {
-    margin-right: 15px;
-    font-size: 0.9rem;
-    min-width: 120px;
+  .track-main {
+    padding: 0.5rem;
   }
   
-  .track-download-btn {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    min-width: 100px;
+  .track-image {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    margin-right: 0.5rem;
   }
   
-  /* Status-based styling */
-  .track-item.status-searching {
-    background-color: rgba(255, 193, 7, 0.1);
+  .track-select {
+    margin-right: 0.5rem;
   }
-  
-  .track-item.status-generating {
-    background-color: rgba(3, 169, 244, 0.1);
-  }
-  
-  .track-item.status-downloaded {
-    background-color: rgba(76, 175, 80, 0.1);
-  }
-  
-  .track-item.status-error {
-    background-color: rgba(226, 33, 52, 0.1);
-  }
-  
-  @media (max-width: 600px) {
-    .track-item {
-      flex-wrap: wrap;
-    }
-    
-    .track-duration {
-      display: none;
-    }
-    
-    .track-title {
-      width: calc(100% - 40px);
-      margin-bottom: 8px;
-    }
-    
-    .track-status {
-      margin-left: 40px;
-      margin-right: 0;
-    }
-    
-    .track-download-btn {
-      margin-left: auto;
-    }
-  }
-  
-  /* src/styles/Footer.css */
-  
+}

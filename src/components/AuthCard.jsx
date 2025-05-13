@@ -1,26 +1,32 @@
 // src/components/AuthCard.jsx
-import React from 'react';
+import { getAuthUrl } from '../services/spotifyService';
 import '../styles/AuthCard.css';
 
-function AuthCard({ onLogin }) {
-  console.log('Rendering AuthCard');
+function AuthCard() {
+  const handleLogin = () => {
+    window.location.href = getAuthUrl();
+  };
+
   return (
-    <div className="card auth-card">
-      <h2>Step 1: Connect with Spotify</h2>
-      <p>To access your playlists, you'll need to authorize this app with your Spotify account.</p>
-      <p>This is a client-side only application - your data never leaves your browser.</p>
-      <button onClick={onLogin} className="spotify-login-btn">
-        Connect with Spotify
-      </button>
-      <div className="disclaimer">
-        <strong>Note:</strong> This app requires Spotify authentication to access playlist data.
-        We don't store any of your information or access your account beyond retrieving
-        playlist details that you explicitly request.
+    <div className="auth-card">
+      <div className="auth-content">
+        <h2>Connect with Spotify</h2>
+        <p>To download your playlists, we need access to your Spotify account.</p>
+        <button 
+          className="spotify-login-button"
+          onClick={handleLogin}
+        >
+          Login with Spotify
+        </button>
+        <div className="auth-info">
+          <p className="disclaimer">
+            We only request read access to your playlists.
+            We don't store your login information.
+          </p>
+        </div>
       </div>
     </div>
   );
 }
 
 export default AuthCard;
-
-// src/components/InputCard.jsx
